@@ -117,14 +117,26 @@ struct OnboardingView: View {
             Text("Vikey dùng kiểu gõ Telex").font(.title2.weight(.semibold))
             Text("Vikey chỉ hỗ trợ Telex, kiểu gõ phổ biến nhất. Bạn gõ tiếng Anh bình thường, Vikey tự nhận ra và không bỏ dấu nhầm.")
                 .foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+            telexTable
+            .padding(14)
+            .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 10))
+        }
+    }
+
+    @ViewBuilder private var telexTable: some View {
+        if #available(macOS 13.0, *) {
             Grid(alignment: .leading, horizontalSpacing: 18, verticalSpacing: 8) {
                 GridRow { telex("aa", "â"); telex("aw", "ă"); telex("ee", "ê"); telex("oo", "ô") }
                 GridRow { telex("ow", "ơ"); telex("uw", "ư"); telex("dd", "đ"); telex("w", "ư") }
                 GridRow { telex("s", "sắc"); telex("f", "huyền"); telex("r", "hỏi"); telex("x", "ngã") }
                 GridRow { telex("j", "nặng"); telex("z", "xoá dấu"); Color.clear.frame(width: 1, height: 1); Color.clear.frame(width: 1, height: 1) }
             }
-            .padding(14)
-            .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 10))
+        } else {
+            let cells = [("aa", "â"), ("aw", "ă"), ("ee", "ê"), ("oo", "ô"), ("ow", "ơ"), ("uw", "ư"), ("dd", "đ"), ("w", "ư"),
+                         ("s", "sắc"), ("f", "huyền"), ("r", "hỏi"), ("x", "ngã"), ("j", "nặng"), ("z", "xoá dấu")]
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 18, alignment: .leading), count: 4), alignment: .leading, spacing: 8) {
+                ForEach(cells, id: \.0) { telex($0.0, $0.1) }
+            }
         }
     }
 
@@ -226,7 +238,7 @@ private struct PracticeStep: View {
             Text(vietnamese ? "Gõ đúng các phím bên dưới, kể cả tiếng Anh. Vikey bỏ dấu cho tiếng Việt và để nguyên tiếng Anh."
                             : "Bạn đang ở tiếng Anh: bấm \(hotkey) để sang tiếng Việt, rồi gõ các phím bên dưới.")
                 .foregroundStyle(.secondary)
-                .lineLimit(2, reservesSpace: true)   // both texts take two lines: switching VI/EN must not move the fields (Tony)
+                .twoLinesReserved()   // both texts take two lines: switching VI/EN must not move the fields (Tony)
             ForEach(0..<Self.lines.count, id: \.self) { i in
                 let ok = Self.normalize(typed[i]) == Self.normalize(Self.lines[i].result)
                 VStack(alignment: .leading, spacing: 4) {

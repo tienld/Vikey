@@ -102,6 +102,11 @@ private struct StatsGrid: View {
 
     var body: some View {
         let periods = [Self.sum(stats, days: 1), Self.sum(stats, days: 7), Self.sum(stats, days: 0)]
+        if #available(macOS 13.0, *) { grid(periods) } else { legacyGrid(periods) }
+    }
+
+    @available(macOS 13.0, *)
+    private func grid(_ periods: [[String: Int]]) -> some View {
         Grid(alignment: .trailing, horizontalSpacing: 28, verticalSpacing: 6) {
             GridRow {
                 Text("")
@@ -113,6 +118,21 @@ private struct StatsGrid: View {
                     ForEach(0..<3, id: \.self) { i in
                         Text(value(row.1, periods[i])).monospacedDigit()
                     }
+                }
+            }
+        }
+    }
+
+    /// macOS 12: the same table as a LazyVGrid (first column leading, numbers trailing).
+    private func legacyGrid(_ periods: [[String: Int]]) -> some View {
+        let columns = [GridItem(.flexible(), alignment: .leading)] + Array(repeating: GridItem(.fixed(80), spacing: 28, alignment: .trailing), count: 3)
+        return LazyVGrid(columns: columns, alignment: .leading, spacing: 6) {
+            Text("")
+            Text("Hôm nay").bold(); Text("7 ngày").bold(); Text("Tất cả").bold()
+            ForEach(rows, id: \.0) { row in
+                Text(row.0)
+                ForEach(0..<3, id: \.self) { i in
+                    Text(value(row.1, periods[i])).monospacedDigit()
                 }
             }
         }

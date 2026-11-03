@@ -40,12 +40,28 @@ enum Preferences {
 }
 
 enum LaunchAtLogin {
-    static var isEnabled: Bool { SMAppService.mainApp.status == .enabled }
+    static var isEnabled: Bool {
+        if #available(macOS 13.0, *) { return SMAppService.mainApp.status == .enabled }
+        return FileManager.default.fileExists(atPath: agentURL.path)
+    }
     static func set(_ on: Bool) {
         do {
-            if on { try SMAppService.mainApp.register() } else { try SMAppService.mainApp.unregister() }
+            if #available(macOS 13.0, *) {
+                if on { try SMAppService.mainApp.register() } else { try SMAppService.mainApp.unregister() }
+            } else if on {
+                // macOS 12 has no SMAppService: a LaunchAgent that opens Vikey at login
+                let agent: [String: Any] = ["Label": agentLabel, "ProgramArguments": ["/usr/bin/open", Bundle.main.bundlePath], "RunAtLoad": true]
+                try FileManager.default.createDirectory(at: agentURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+                try PropertyListSerialization.data(fromPropertyList: agent, format: .xml, options: 0).write(to: agentURL)
+            } else if FileManager.default.fileExists(atPath: agentURL.path) {
+                try FileManager.default.removeItem(at: agentURL)
+            }
         } catch {
             NSLog("Vikey: launch at login change failed: \(error)")
         }
+    }
+    private static let agentLabel = "com.devuap.vikey.login"
+    private static var agentURL: URL {
+        FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/LaunchAgents/\(agentLabel).plist")
     }
 }

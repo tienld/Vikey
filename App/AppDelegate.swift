@@ -14,6 +14,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if UserDefaults.standard.object(forKey: OnboardingView.doneKey) == nil && VikeyCore.isAccessibilityTrusted() {
             UserDefaults.standard.set(true, forKey: OnboardingView.doneKey)
         }
+        if #unavailable(macOS 13.0) { LegacyStatusItem.shared.install() }   // MenuBarExtra on macOS 13+
         AppState.shared.startIfPossible()
         _ = Updater.shared                     // starts Sparkle: daily update checks
         EmojiPicker.shared.install()
@@ -36,7 +37,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let ws = NSWorkspace.shared.notificationCenter
         ws.addObserver(forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main) { _ in
             VikeyCore.frontmostAppChanged()
-            MainActor.assumeIsolated { AppState.shared.frontAppChanged() }   // queue: .main
+            MainActor.assumeIsolatedCompat { AppState.shared.frontAppChanged() }   // queue: .main
         }
         ws.addObserver(forName: NSWorkspace.activeSpaceDidChangeNotification, object: nil, queue: .main) { _ in
             VikeyCore.activeSpaceChanged()
@@ -45,7 +46,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             VikeyCore.stop()
         }
         ws.addObserver(forName: NSWorkspace.didWakeNotification, object: nil, queue: .main) { _ in
-            MainActor.assumeIsolated { AppState.shared.startIfPossible() }   // queue: .main
+            MainActor.assumeIsolatedCompat { AppState.shared.startIfPossible() }   // queue: .main
         }
     }
 

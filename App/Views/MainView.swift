@@ -37,8 +37,7 @@ struct MainView: View {
                     Section { generalRows }
                 }
             }
-            .formStyle(.grouped)
-            .scrollDisabled(true)
+            .settingsFormStyle()
             .padding(.bottom, 8)
         }
         .frame(width: 460)
@@ -90,7 +89,7 @@ struct MainView: View {
     // MARK: rows of each tab
 
     @ViewBuilder private var hotkeyRows: some View {
-                LabeledContent {
+                Row {
                     HotkeyRecorder(raw: Binding(get: { hotkeyRaw }, set: { hotkeyRaw = $0; Preferences.apply() }))
                 } label: {
                     Tip("Phím chuyển Anh/Việt", "Bấm tổ hợp phím này để chuyển giữa tiếng Việt và tiếng Anh. Bấm vào ô để đặt phím khác.")
@@ -147,7 +146,7 @@ struct MainView: View {
                     Tip("Bảng emoji", "Bấm phím tắt để mở bảng emoji ở giữa màn hình. Tìm bằng tiếng Việt hoặc tiếng Anh, gõ Telex vẫn tìm được: \"ngựa\", \"horse\" đều ra 🐴. Enter để chèn, Esc để đóng.")
                 }
                 if emojiOn != 0 {
-                    LabeledContent {
+                    Row {
                         HotkeyRecorder(raw: Binding(get: { emojiKey }, set: { k in
                             guard k != hotkeyRaw & ~0x8000 else { return }   // already the Vietnamese/English switch
                             emojiKey = k & ~0x8000; Preferences.apply()
@@ -194,7 +193,7 @@ struct MainView: View {
                 Toggle(isOn: Binding(get: { updater.automatic }, set: { updater.automatic = $0 })) {
                     Tip("Tự động cập nhật", "Mỗi ngày Vikey kiểm tra bản mới trên vikey.app, tự tải về và cài khi bạn thoát Vikey hoặc tắt máy.")
                 }
-                LabeledContent {
+                Row {
                     Button("Gửi góp ý…") { Feedback.open() }
                 } label: {
                     Tip("Góp ý", "Báo lỗi hoặc góp ý cho Vikey: mở trang vikey.app/feedback trong trình duyệt.")

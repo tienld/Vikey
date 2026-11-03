@@ -17,8 +17,8 @@ final class AppState: ObservableObject {
     private var permissionTimer: Timer?
 
     private init() {
-        NotificationCenter.default.addObserver(forName: .VikeyLanguageDidChange, object: nil, queue: .main) { [weak self] _ in
-            Task { @MainActor in self?.language = Int(VikeyCore.language()) }
+        NotificationCenter.default.addObserver(forName: .VikeyLanguageDidChange, object: nil, queue: .main) { _ in
+            Task { @MainActor in AppState.shared.language = Int(VikeyCore.language()) }
         }
     }
 

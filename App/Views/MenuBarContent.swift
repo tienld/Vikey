@@ -32,12 +32,14 @@ struct MenuBarContent: View {
         Button("Mở Vikey…") { Windows.main.show() }
             .keyboardShortcut(",")
         Divider()
-        Button("Hướng dẫn…") { OnboardingWindow.show() }
-        Button("Gửi góp ý…") { Feedback.open() }
-        Button("Kiểm tra cập nhật…") { Updater.shared.checkForUpdates() }
-        Button("Giới thiệu Vikey") { AboutPanel.show() }
-        Button("Thoát Vikey") { NSApp.terminate(nil) }
-            .keyboardShortcut("q")
+        Group {   // Swift 5.7's ViewBuilder takes at most 10 views
+            Button("Hướng dẫn…") { OnboardingWindow.show() }
+            Button("Gửi góp ý…") { Feedback.open() }
+            Button("Kiểm tra cập nhật…") { Updater.shared.checkForUpdates() }
+            Button("Giới thiệu Vikey") { AboutPanel.show() }
+            Button("Thoát Vikey") { NSApp.terminate(nil) }
+                .keyboardShortcut("q")
+        }
     }
 }
 
